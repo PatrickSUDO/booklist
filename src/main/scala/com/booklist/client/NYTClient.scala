@@ -8,7 +8,6 @@ import com.twitter.finagle.{Http, Service}
 import com.twitter.util.logging.Logger
 import com.twitter.util.{Duration, Future}
 
-import java.io.IOException
 import scala.jdk.CollectionConverters.IteratorHasAsScala
 import scala.util.{Failure, Success, Try}
 

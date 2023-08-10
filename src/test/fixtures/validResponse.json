@@ -1,0 +1,29 @@
+{
+  "status": "OK",
+  "num_results": 2,
+  "results": [
+    {
+      "title": "PRINCIPLES",
+      "author": "Ray Dalio",
+      "publisher": "Simon & Schuster",
+      "ranks_history": [
+        {
+          "published_date": "2021-09-18"
+        }
+      ]
+    },
+    {
+      "title": "PRINCIPLES FOR DEALING WITH THE CHANGING WORLD ORDER",
+      "author": "Ray Dalio",
+      "publisher": "Avid Reader",
+      "ranks_history": [
+        {
+          "published_date": "2022-09-18"
+        },
+        {
+          "published_date": "2022-08-14"
+        }
+      ]
+    }
+  ]
+}
