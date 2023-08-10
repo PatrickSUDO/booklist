@@ -6,12 +6,12 @@ import com.twitter.util.logging.Logger
 
 import java.util.concurrent.TimeUnit
 
-class BooksCache {
+class BooksCache(expireAfterSeconds: Int = 180) {
   private val log = Logger(getClass)
 
   private val cache = Caffeine
     .newBuilder()
-    .expireAfterWrite(3, TimeUnit.MINUTES)
+    .expireAfterWrite(expireAfterSeconds, TimeUnit.SECONDS)
     .maximumSize(5000)
     .build[String, List[Book]]()
 

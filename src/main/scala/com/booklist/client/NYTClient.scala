@@ -88,7 +88,7 @@ class NYTClient(apiKey: String) {
             val title = bookJson.path("title").asText("")
             val publisher = bookJson.path("publisher").asText("")
             val author = bookJson.path("author").asText("")
-            Some(Book(title, publisher, author, bookYear))
+            Some(Book(title, author, publisher, bookYear))
           }
         }
 

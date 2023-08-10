@@ -1,10 +1,12 @@
 package com.booklist.cache
 
 import com.booklist.model.Book
-import com.twitter.util.{Await, Future}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-class BooksCacheTest extends AnyFlatSpec with Matchers {
+import org.scalatest.time.SpanSugar.convertIntToGrainOfTime
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{Await, Future}
+class BooksCacheSpec extends AnyFlatSpec with Matchers {
 
   "A BooksCache" should "store and retrieve a book" in {
     val cache = new BooksCache()
@@ -30,14 +32,14 @@ class BooksCacheTest extends AnyFlatSpec with Matchers {
     cache.get("nonExistentKey") should be(None)
   }
 
-  it should "evict cache entries after 3 minutes" in {
-    val cache = new BooksCache()
+  it should "evict cache entries after periods" in {
+    val cache = new BooksCache(1)
     val bookList = List(Book("Title1", "Author1", "Publisher1", Some("2021")))
 
     cache.put("key1", bookList)
 
     // Sleep for a little over 3 minutes (considering some buffer time)
-    Thread.sleep(3 * 60 * 1000 + 5000)
+    Thread.sleep(1500)
 
     cache.get("key1") should be(None)
   }

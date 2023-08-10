@@ -10,9 +10,8 @@ import com.twitter.finagle.http.{Request, Response, Status, Version}
 import com.twitter.util.Future
 import com.twitter.util.logging.Logger
 
-class BookService(nytClient: NYTClient) extends Service[Request, Response] {
+class BookService(nytClient: NYTClient, booksCache: BooksCache = new BooksCache()) extends Service[Request, Response] {
   private[this] val log = Logger(getClass)
-  private val booksCache = new BooksCache()
 
   def apply(request: Request): Future[Response] = {
     if (request.path != "/v1/books/list") {

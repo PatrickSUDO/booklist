@@ -8,11 +8,12 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import com.booklist.model.Book
 import java.nio.file.{Files, Paths}
+
 class NYTClientSpec extends AnyFlatSpec with Matchers with MockFactory {
 
   // Helper function to load JSON from a fixture file
   def loadJsonFixture(filename: String): String = {
-    new String(Files.readAllBytes(Paths.get(s"fixtures/$filename")))
+    new String(Files.readAllBytes(Paths.get(s"src/test/fixtures/$filename")))
   }
 
   "getBooks" should "return a list of books for a valid response" in {
@@ -21,11 +22,8 @@ class NYTClientSpec extends AnyFlatSpec with Matchers with MockFactory {
       override val client: Service[Request, Response] = mockService
     }
 
-    val mockResponse = mock[Response]
-    (mockResponse.status _).expects().returning(Status.Ok)
-    (mockResponse.contentString _)
-      .expects()
-      .returning(loadJsonFixture("test/fixtures/validResponse.json"))
+    val mockResponse = Response(Status.Ok)
+    mockResponse.setContentString(loadJsonFixture("validResponse.json"))
 
     (mockService.apply _).expects(*).returning(Future.value(mockResponse))
 
@@ -42,8 +40,7 @@ class NYTClientSpec extends AnyFlatSpec with Matchers with MockFactory {
       override val client: Service[Request, Response] = mockService
     }
 
-    val mockResponse = mock[Response]
-    (mockResponse.status _).expects().returning(Status.BadRequest)
+    val mockResponse = Response(Status.BadRequest)
     (mockService.apply _).expects(*).returning(Future.value(mockResponse))
 
     a[Exception] should be thrownBy Await.result(
