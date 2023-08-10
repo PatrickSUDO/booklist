@@ -1,5 +1,7 @@
 package com.booklist
 
+import com.booklist.client.NYTClient
+import com.booklist.service.BookService
 import com.twitter.finagle.Http
 import com.twitter.util.logging.{Logger, Logging}
 import com.twitter.util.Await

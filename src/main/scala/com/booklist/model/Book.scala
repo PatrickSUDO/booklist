@@ -1,4 +1,4 @@
-package com.booklist
+package com.booklist.model
 
 case class Book(
     title: String,
