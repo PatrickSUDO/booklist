@@ -7,4 +7,5 @@ scalaVersion := "2.13.11"
 libraryDependencies ++= Seq(
   "com.twitter" %% "finagle-core" % "22.12.0",
   "com.twitter" %% "finagle-http" % "22.12.0",
+  "com.github.ben-manes.caffeine" % "caffeine" % "2.9.3",
 )
