@@ -1,6 +1,6 @@
 # BookList 
 
-This service provides an API to fetch a list of books based on the author's name and, optionally, a publication year. The data is sourced from the New York Times API and is cached for better performance and reduced external API calls.
+This service built with Finagle provides an API to fetch a list of books based on the author's name and, optionally, a publication year. The data is sourced from the New York Times API and is cached for better performance and reduced external API calls.
 
 ## Requirements
 

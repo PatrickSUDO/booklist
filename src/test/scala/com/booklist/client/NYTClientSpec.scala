@@ -27,10 +27,15 @@ class NYTClientSpec extends AnyFlatSpec with Matchers with MockFactory {
 
     (mockService.apply _).expects(*).returning(Future.value(mockResponse))
 
-    val result = Await.result(nytClient.getBooks("someAuthor"))
+    val result = Await.result(nytClient.getBooks("Ray Dalio"))
     result shouldBe List(
       Book("PRINCIPLES", "Ray Dalio", "Simon & Schuster", Some("2021")),
-      Book("PRINCIPLES FOR DEALING WITH THE CHANGING WORLD ORDER", "Ray Dalio", "Avid Reader", Some("2022"))
+      Book(
+        "PRINCIPLES FOR DEALING WITH THE CHANGING WORLD ORDER",
+        "Ray Dalio",
+        "Avid Reader",
+        Some("2022")
+      )
     )
   }
 

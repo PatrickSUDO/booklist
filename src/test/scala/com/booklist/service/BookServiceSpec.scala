@@ -2,7 +2,8 @@ package com.booklist.service
 
 import com.booklist.cache.BooksCache
 import com.booklist.client.NYTClient
-import com.twitter.finagle.http.{Method, Request, Status, Version}
+import com.booklist.filters.BooksValidationFilter
+import com.twitter.finagle.http.{Method, Request, Status}
 import com.twitter.util.{Await, Future}
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.flatspec.AnyFlatSpec
@@ -14,6 +15,7 @@ import com.fasterxml.jackson.module.scala.DefaultScalaModule
 class BookServiceSpec extends AnyFlatSpec with Matchers with MockFactory {
 
   val mapper = JsonMapper.builder().addModule(DefaultScalaModule).build()
+  private val validationFilter = new BooksValidationFilter()
 
   private val TestBooksLists = List(
     Book("t1", "a1", "me", Some("2023")),
@@ -44,7 +46,8 @@ class BookServiceSpec extends AnyFlatSpec with Matchers with MockFactory {
     (mockCache.get _).expects("someAuthor-2023").returning(Some(TestBooksLists))
 
     // Create an instance of BookService using the mocked cache
-    val service = new BookService(mockClient, mockCache)
+    val service =
+      validationFilter.andThen(new BookService(mockClient, mockCache))
 
     val request =
       Request(Method.Get, "/v1/books/list?author=someAuthor&year=2023")
@@ -58,13 +61,15 @@ class BookServiceSpec extends AnyFlatSpec with Matchers with MockFactory {
 
   it should "fetch books from NYTClient if not in cache" in {
     val mockClient = mock[NYTClient]
-    val service = new BookService(mockClient)
+    val service =
+      validationFilter.andThen(new BookService(mockClient))
 
     (mockClient.getBooks _)
-      .expects("someAuthor", None)
+      .expects("someAuthor", Some("2023"))
       .returning(Future(TestBooksLists))
 
-    val request = Request(Method.Get, "/v1/books/list?author=someAuthor")
+    val request =
+      Request(Method.Get, "/v1/books/list?author=someAuthor&year=2023")
 
     val response = Await.result(service(request))
     response.status shouldBe Status.Ok
@@ -76,8 +81,7 @@ class BookServiceSpec extends AnyFlatSpec with Matchers with MockFactory {
 
   it should "return a 400 error if the author is missing" in {
     val mockClient = mock[NYTClient]
-    val service = new BookService(mockClient)
-
+    val service = validationFilter.andThen(new BookService(mockClient))
     val request = Request(Method.Get, "/v1/books/list")
 
     val response = Await.result(service(request))
@@ -86,8 +90,7 @@ class BookServiceSpec extends AnyFlatSpec with Matchers with MockFactory {
 
   it should "return a 404 error if the path is incorrect" in {
     val mockClient = mock[NYTClient]
-    val service = new BookService(mockClient)
-
+    val service = validationFilter.andThen(new BookService(mockClient))
     val request = Request(Method.Get, "/incorrect/path")
 
     val response = Await.result(service(request))
@@ -97,7 +100,7 @@ class BookServiceSpec extends AnyFlatSpec with Matchers with MockFactory {
 
   it should "return a 500 error if the NYTClient throws an exception" in {
     val mockClient = mock[NYTClient]
-    val service = new BookService(mockClient)
+    val service = validationFilter.andThen(new BookService(mockClient))
 
     (mockClient.getBooks _)
       .expects("someAuthor", None)
@@ -112,12 +115,31 @@ class BookServiceSpec extends AnyFlatSpec with Matchers with MockFactory {
 
   it should "return a 400 error if the author is an empty string" in {
     val mockClient = mock[NYTClient]
-    val service = new BookService(mockClient)
+    val service = validationFilter.andThen(new BookService(mockClient))
 
     val request = Request(Method.Get, "/v1/books/list?author=")
 
     val response = Await.result(service(request))
     response.status shouldBe Status.BadRequest
-    response.contentString shouldBe "Missing 'author' parameter"
+    response.contentString shouldBe "Missing or empty 'author' parameter"
+  }
+
+  it should "return a 200 status with an empty list if NYTClient returns no books" in {
+    val mockClient = mock[NYTClient]
+    val service = validationFilter.andThen(new BookService(mockClient))
+
+    // Mocking the client to return an empty list
+    (mockClient.getBooks _)
+      .expects("someAuthor", Some("2023"))
+      .returning(Future(List.empty[Book]))
+
+    val request =
+      Request(Method.Get, "/v1/books/list?author=someAuthor&year=2023")
+
+    val response = Await.result(service(request))
+    response.status shouldBe Status.Ok
+
+    val expectedContent = "[]"
+    response.contentString shouldBe expectedContent
   }
 }

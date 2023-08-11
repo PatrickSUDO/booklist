@@ -18,7 +18,6 @@ class BooksCache(expireAfterSeconds: Int = 180) {
   def get(key: String): Option[List[Book]] = {
     val data = Option(cache.getIfPresent(key))
     if (data.isDefined) {
-      println(s"Retrieved data for key $key from cache.")
       log.info(s"Retrieved data for key $key from cache.")
     }
     data
@@ -26,7 +25,6 @@ class BooksCache(expireAfterSeconds: Int = 180) {
 
   def put(key: String, books: List[Book]): Unit = {
     cache.put(key, books)
-    println(s"Data for key $key added to cache.")
     log.info(s"Data for key $key added to cache.")
   }
 }

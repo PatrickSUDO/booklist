@@ -2,12 +2,16 @@ package com.booklist.client
 
 import com.booklist.model.Book
 import com.fasterxml.jackson.databind.json.JsonMapper
-import com.fasterxml.jackson.module.scala.{ClassTagExtensions, DefaultScalaModule}
+import com.fasterxml.jackson.module.scala.{
+  ClassTagExtensions,
+  DefaultScalaModule
+}
 import com.twitter.finagle.http.{Request, Response, Status}
 import com.twitter.finagle.{Http, Service}
 import com.twitter.util.logging.Logger
 import com.twitter.util.{Duration, Future}
 
+import java.net.URLEncoder
 import scala.jdk.CollectionConverters.IteratorHasAsScala
 import scala.util.{Failure, Success, Try}
 
@@ -23,8 +27,9 @@ class NYTClient(apiKey: String) {
       author: String,
       year: Option[String] = None
   ): Future[List[Book]] = {
+
     val params = Map(
-      "author" -> author,
+      "author" -> URLEncoder.encode(author, "UTF-8"),
       "api-key" -> apiKey
     )
 
@@ -91,13 +96,7 @@ class NYTClient(apiKey: String) {
             Some(Book(title, author, publisher, bookYear))
           }
         }
-
-        if (books.isEmpty) {
-          Left("No books found or data was missing/malformed.")
-        } else {
-          Right(books)
-        }
+        Right(books)
     }
   }
-
 }
